@@ -4,36 +4,35 @@
 #include <functional>
 #include <typeinfo>
 
+template<typename K, typename T>
+class Pair
+{
+public:
+    K key;
+    T data;
+
+    Pair(K key, T data)
+    {
+        this->data = data;
+        this->key = key;
+    };
+
+    Pair()
+    {
+        this->data = T();
+        this->key = K();
+    };
+
+    bool operator==(Pair<K, T> a)
+    {
+        return this->key == a.key && this->data == a.data ? true : false;
+    }
+};
+
 
 template<typename K, typename T>
 class HashTable
 {
-private:
-	template<typename K, typename T>
-	class Pair
-	{
-	public:
-		K key;
-		T data;
-
-		Pair(K key, T data)
-		{
-			this->data = data;
-			this->key = key;
-		};
-
-		Pair()
-        {
-			this->data = T();
-			this->key = K();
-        };
-
-		bool operator==(Pair<K, T> a)
-		{
-            return this->key == a.key && this->data == a.data ? true : false;
-		}
-	};
-
 private:
     int arrSize;
     int size;
@@ -46,6 +45,8 @@ private:
 	int collisionFix(int i , int n);
 	bool isFree(int i);
 	void resize();
+    int indexOf(K key);
+    Pair<K,T> pairByKey(K key);
 	//T& getDataByKey(K key);
 
 	
@@ -59,7 +60,6 @@ public:
 	void add(K key, T data);
 	void removeByKey(K key);
     T& operator[](K key);
-    T& getUserByIndex(int i);
 
     T* getAll();
 };
@@ -71,9 +71,7 @@ HashTable<K, T>::HashTable()
     this->arr = new Pair<K, T>[arrSize]();
 
     for(int i = 0; i < arrSize; i++)
-    {
         arr[i] = Pair<K, T>();
-    }
 
     this->size = 0;
 }
@@ -100,21 +98,33 @@ int HashTable<K, T>::getSize() const
 }
 
 template<typename K, typename T>
+Pair<K, T> HashTable<K, T>::pairByKey(K key)
+{
+    int i = indexOf(key);
+
+    int try_n = 1;
+    while (arr[i].key != key && try_n != this->arrSize) {
+        i = collisionFix(i, try_n++);
+    }
+    if (try_n != this->arrSize)
+        return arr[i];
+    return Pair<K,T>();
+}
+
+template<typename K, typename T>
 bool HashTable<K, T>::contains(K key)
 {
-    T check = operator[](key);
+    Pair<K, T> check = pairByKey(key);
     return !(check == Pair<K, T>()) && check.key == key;
 }
 
 template<typename K, typename T>
 void HashTable<K, T>::add(K key, T data)
 {
-    int i;
-    const std::type_info& str = typeid (std::string);
-    if (typeid(key).name() == str.name())
-        i = myHashFun(key);
-    else
-        i = hashFun(key);
+    if (contains(key))
+        return;
+
+    int i = indexOf(key);
 
 	if (isFree(i))
 		this->arr[i] = Pair<K, T>(key, data);
@@ -133,14 +143,19 @@ void HashTable<K, T>::add(K key, T data)
 }
 
 template<typename K, typename T>
-void HashTable<K, T>::removeByKey(K key)
+int HashTable<K, T>::indexOf(K key)
 {
-    int i;
     const std::type_info& str = typeid (std::string);
     if (typeid(key).name() == str.name())
-        i = myHashFun(key);
+        return myHashFun(key);
     else
-        i = hashFun(key);
+        return hashFun(key);
+}
+
+template<typename K, typename T>
+void HashTable<K, T>::removeByKey(K key)
+{
+    int i = indexOf(key);
 
     int try_n = 1;
     while (arr[i].key != key && try_n != this->arrSize) {
@@ -179,12 +194,7 @@ int HashTable<K, T>::myHashFun(std::string key)
 template<typename K, typename T>
 T& HashTable<K, T>::operator[](K key)
 {
-    int i;
-    const std::type_info& str = typeid (std::string);
-    if (typeid(key).name() == str.name())
-        i = myHashFun(key);
-    else
-        i = hashFun(key);
+    int i = indexOf(key);
 
     int try_n = 1;
     while (arr[i].key != key && try_n != this->arrSize) {
@@ -192,24 +202,8 @@ T& HashTable<K, T>::operator[](K key)
     }
     if (try_n != this->arrSize)
         return arr[i].data;
-    //return T();
-}
-
-template<typename K, typename T>
-T& HashTable<K, T>::getUserByIndex(int i)
-{
-    int index_of_curent_element = -1;
-    int arr_index = 0;
-    T curElem;
-
-    do
-    {
-        curElem = arr[arr_index].data;
-        if (!(curElem == T()))
-            index_of_curent_element++;
-    } while(i > index_of_curent_element);
-
-    return curElem;
+    T tmp = T();
+    return tmp;
 }
 
 template<typename K, typename T>
@@ -236,13 +230,31 @@ void HashTable<K, T>::resize()
         this->arrSize *= 2;
 
         Pair<K, T>* arr2 = new Pair<K, T>[arrSize]();
+        for (int i = 0; i < arrSize; i++)
+            arr2[i] = Pair<K, T>();
 
         for (int i = 0; i < this->arrSize / 2; i++)
 		{
 			if (this->arr[i] == Pair<K, T>())
 				continue;
 			else
-				arr2[hashFun(this->arr[i].key)] = this->arr[i];
+            {
+                int j = indexOf(arr[i].key);
+
+                if (arr2[j] == Pair<K,T>())
+                    arr2[j] = Pair<K, T>(arr[i].key, arr[i].data);
+                else
+                {
+                    int try_n = 1;
+                    do
+                    {
+                        j = collisionFix(j, try_n++);
+                    } while (!(arr2[j] == Pair<K,T>()));
+
+                    arr2[j] = Pair<K, T>(arr[i].key, arr[i].data);
+                }
+            }
+
 		}
 
 		delete[] this->arr;
