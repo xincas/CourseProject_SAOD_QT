@@ -333,7 +333,7 @@ typename List<T>::template Node<T>* List<T>::saveFind(T data)
 {
     Node<T>* curNode = this->head_;
 
-    while (curNode->lvl_next_[0])
+    while (curNode)
     {
         if (curNode->data == data)
             return curNode;
@@ -457,7 +457,7 @@ void List<T>::pop_back()
 
     Node<T>* oldBack = this->back_;
     this->Size_--;
-    if ((Size_ - 1) % 2 == 0)
+    if ((Size_) % 2 == 0)
         rePtrMod2Index(Size_, nullptr);
     delete oldBack;
 

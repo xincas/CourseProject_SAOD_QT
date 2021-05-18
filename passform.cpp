@@ -27,7 +27,6 @@ PassForm::PassForm(Passanger curPas,
 PassForm::~PassForm()
 {
     emit destroyed();
-    //delete[] tickets_;
     delete ui;
 }
 
@@ -94,6 +93,8 @@ void PassForm::refreshTableTickets()
             ui->tableWidget->setItem(i,2,new QTableWidgetItem(QString::fromUtf8(dada.date.c_str())));
         }
     }
+
+    delete[] pas_tickets;
 
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->tableWidget->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
@@ -187,7 +188,7 @@ void PassForm::on_return_ticket_but_clicked()
     emit returnTicket(Ticket(ui->tableWidget->item(row, 0)->text().toStdString()));
 }
 
-void PassForm::refreshTickets(/*Ticket* tickets, int n_t*/)
+void PassForm::refreshTickets()
 {
     /*delete[] tickets_;
     this->tickets_ = tickets;

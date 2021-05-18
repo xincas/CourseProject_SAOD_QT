@@ -36,3 +36,13 @@ void AddFlightForm::on_cancel_but_clicked()
 {
     this->close();
 }
+
+bool AddFlightForm::checkFills()
+{
+    QString str = "Incorrect data:";
+
+    if (fly.free_seats > fly.all_seats || fly.free_seats < 0 || fly.all_seats < 0)
+        str += "\nFree and all seats";
+
+    return false;
+}

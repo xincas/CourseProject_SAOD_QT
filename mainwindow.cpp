@@ -13,16 +13,16 @@ MainWindow::MainWindow(QWidget *parent)
     Passes.add("2314-335370", Passanger("2314-335370", "Mikhail Nesterenko", "22.06.2001", "Saint-Petersburg"));
     Passes.add("4314-335370", Passanger("4314-335370", "Alexander Krutov", "15.11.2001", "Saint-Petersburg"));
 
-    Flights.add(Flight("RUS-598", "RussiaAirlines", "Moscow", "Saint-Petersburg", "30.04.2021", "12:52", 20, 10));
-    Flights.add(Flight("GER-125", "GermanyAirlines", "Berlin", "Moscow", "30.04.2021", "07:25", 20, 5));
-    Flights.add(Flight("UKR-276", "UkraineAirlines", "Kiev", "Moscow", "30.04.2021", "00:38", 20, 1));
+    Flights.add(Flight("AAA-111", "RussiaAirlines", "Moscow", "Saint-Petersburg", "30.04.2021", "12:52", 20, 10));
+    Flights.add(Flight("AAA-222", "GermanyAirlines", "Berlin", "Moscow", "30.04.2021", "07:25", 20, 5));
+    Flights.add(Flight("AAA-333", "UkraineAirlines", "Kiev", "Moscow", "30.04.2021", "00:38", 20, 1));
 
-    Tickets.push_back(Ticket("3314-335370", "RUS-598", "125936526"));
-    Tickets.push_back(Ticket("3314-335370", "GER-125", "125683526"));
-    Tickets.push_back(Ticket("3314-335370", "UKR-276", "525683526"));
-    Tickets.push_back(Ticket("1314-335370", "RUS-598", "122346526"));
-    Tickets.push_back(Ticket("4314-335370", "RUS-598", "235636526"));
-    Tickets.push_back(Ticket("2314-335370", "RUS-598", "121546526"));
+    Tickets.push_back(Ticket("3314-335370", "AAA-111", "125936526"));
+    Tickets.push_back(Ticket("3314-335370", "AAA-222", "125683526"));
+    Tickets.push_back(Ticket("3314-335370", "AAA-333", "525683526"));
+    Tickets.push_back(Ticket("1314-335370", "AAA-111", "122346526"));
+    Tickets.push_back(Ticket("4314-335370", "AAA-111", "235636526"));
+    Tickets.push_back(Ticket("2314-335370", "AAA-111", "121546526"));
 
     createPassengersTable();
     createFlightsTable();
@@ -247,12 +247,16 @@ void MainWindow::on_add_pass_but_clicked()
 void MainWindow::addPassanger()
 {
     Passanger n_pass = UserAddWindow->get_passanger();
-
-    Passes.add(n_pass.passport_number, n_pass);
-
-    UserAddWindow->close();
-
-    refreshPassTable();
+    if (Passes.contains(n_pass.passport_number))
+    {
+        QMessageBox::warning(this->UserAddWindow, "Ошибка", "Номер паспорта не уникален!");
+    }
+    else
+    {
+        Passes.add(n_pass.passport_number, n_pass);
+        UserAddWindow->close();
+        refreshPassTable();
+    }
 }
 
 void MainWindow::on_del_pass_but_clicked()
@@ -261,17 +265,39 @@ void MainWindow::on_del_pass_but_clicked()
         return;
 
     int row = ui->tab_pass->selectedItems().first()->row();
-    //int col = ui->tab_pass->selectedItems().first()->column();
+    Passanger curPas = Passes[ui->tab_pass->item(row, 0)->text().toStdString()];
 
-    Passes.removeByKey(ui->tab_pass->item(row, 0)->text().toStdString());
+    int size_t = 0;
+    Ticket* ticks = ticketsOfPass(curPas.passport_number, &size_t);
+
+    for (int i = 0; i < size_t; i++)
+        returnTicket(ticks[i]);
+
+    Passes.removeByKey(curPas.passport_number);
+    delete[] ticks;
 
     refreshPassTable();
 }
 
 void MainWindow::on_del_all_pass_but_clicked()
 {
+    int size_pas = Passes.getSize();
+    Passanger* passes = Passes.getAll();
+    for(int i = 0; i < size_pas; i++)
+    {
+        int size_tick_pas = 0;
+        Ticket* ticks_pas = ticketsOfPass(passes[i].passport_number, &size_tick_pas);
+
+        for (int j = 0; j < size_tick_pas; j++)
+            returnTicket(ticks_pas[j]);
+
+        delete[] ticks_pas;
+    }
+    delete[] passes;
+
     Passes.clear();
     refreshPassTable();
+    refreshTickTable();
 }
 
 void MainWindow::on_line_pas_num_textChanged(const QString &arg1)
@@ -286,21 +312,21 @@ void MainWindow::on_line_pas_name_textChanged(const QString &arg1)
 
 void MainWindow::FindPassanger(QString name, QString num)
 {
-        Passanger* pass = Passes.getAll();
-        int n = Passes.getSize();
+    Passanger* pass = Passes.getAll();
+    int n = Passes.getSize();
 
-        Passanger* f_pas = new Passanger[n];
-        int f_size = 0;
+    Passanger* f_pas = new Passanger[n];
+    int f_size = 0;
 
-        for (int i = 0; i < n; i++)
-        {
-            if (pass[i].full_name.find(name.toStdString()) != std::string::npos
-                    && pass[i].passport_number.find(num.toStdString()) != std::string::npos)
-                f_pas[f_size++] = pass[i];
-        }
+    for (int i = 0; i < n; i++)
+    {
+        if (pass[i].full_name.find(name.toStdString()) != std::string::npos
+                && pass[i].passport_number.find(num.toStdString()) != std::string::npos)
+            f_pas[f_size++] = pass[i];
+    }
 
-        refreshPassTable(f_pas, f_size);
-        delete[] pass;
+    refreshPassTable(f_pas, f_size);
+    delete[] pass;
 }
 
 void MainWindow::on_tab_pass_itemDoubleClicked(QTableWidgetItem *item)
@@ -311,10 +337,8 @@ void MainWindow::on_tab_pass_itemDoubleClicked(QTableWidgetItem *item)
         std::string pas_num = ui->tab_pass->item(row, 0)->text().toStdString();
 
         Passanger curPas = Passes[pas_num];
-        /*int t_size = 0;
-        Ticket* pas_tickets = ticketsOfPass(pas_num, &t_size);*/
 
-        PassWin = new PassForm(curPas, &Tickets,/*pas_tickets, t_size,*/ &Flights);
+        PassWin = new PassForm(curPas, &Tickets, &Flights);
         PassWin->setAttribute(Qt::WA_DeleteOnClose);
 
         connect(PassWin, &PassForm::returnTicket, this, &MainWindow::returnTicket);
@@ -348,24 +372,16 @@ Ticket* MainWindow::ticketsOfPass(std::string pas_num, int* pas_size)
 
 void MainWindow::returnTicket(Ticket t)
 {
-    Ticket to_del = Tickets.findData(t);
-    if (to_del.passport_number != "" && to_del.flight_number != "")
+    if (Tickets.contains(t))
     {
+        Ticket to_del = Tickets.findData(t);
         std::string fly_num = to_del.flight_number;
         Flights.get(Flight(to_del.flight_number)).free_seats++;
         Tickets.remove(t);
 
-        /*int size_t = 0;
-        Ticket* ticks = ticketsOfPass(PassWin->getCurPass().passport_number, &size_t);*/
-        //PassWin->refreshTickets(/*ticks, size_t*/);
         refreshTickTable();
 
-
-        Flight fly = Flights.get(Flight(fly_num));
-        /*int t_size = 0;
-        Ticket* flight_tickets = ticketsOfFlight(fly_num, &t_size);*/
-
-        emit refreshFlyWin(/*fly, flight_tickets, t_size*/);
+        emit refreshFlyWin();
         emit refreshPassWin();
     }
 }
@@ -373,15 +389,22 @@ void MainWindow::returnTicket(Ticket t)
 void MainWindow::issueNewTicket(Flight f)
 {
     Flight fly = Flights.get(f);
-    if (fly.a_from != "" && fly.a_to != "" && fly.free_seats > 0)
+    if (fly.a_from == "" && fly.a_to == "")
+    {
+        QMessageBox::warning(this->PassWin, "Ошибка", "Рейс не найден");
+    }
+    else if (fly.free_seats <= 0)
+    {
+        QMessageBox::warning(this->PassWin, "Ошибка", "На данный рейс нет свободных мест");
+    }
+    else
     {
         Ticket nt = newTicket(PassWin->getCurPass(), fly);
         Flights.get(f).free_seats--;
         Tickets.push_back(nt);
 
-        //PassWin->refreshTickets();
         refreshTickTable();
-        emit refreshFlyWin(/*Flights.get(f)*/);
+        emit refreshFlyWin();
         emit refreshPassWin();
     }
 }
@@ -418,12 +441,16 @@ void MainWindow::on_add_flight_but_clicked()
 void MainWindow::addFlight()
 {
     Flight n_fly = FlightAddWindow->getFly();
-
-    Flights.add(n_fly);
-
-    FlightAddWindow->close();
-
-    refreshFlightTable();
+    if (Flights.contains(n_fly))
+    {
+        QMessageBox::warning(this->FlightAddWindow, "Ошибка", "Номер рейса не уникален!");
+    }
+    else
+    {
+        Flights.add(n_fly);
+        FlightAddWindow->close();
+        refreshFlightTable();
+    }
 }
 
 void MainWindow::on_del_flight_but_clicked()
@@ -543,10 +570,8 @@ void MainWindow::on_tab_flight_itemDoubleClicked(QTableWidgetItem *item)
         std::string fly_num = ui->tab_flight->item(row, 0)->text().toStdString();
 
         Flight fly = Flights.get(Flight(fly_num));
-        /*int t_size = 0;
-        Ticket* flight_tickets = ticketsOfFlight(fly_num, &t_size);*/
 
-        FlyWin = new FlightForm(fly, &Flights, &Tickets,/*flight_tickets, t_size,*/ &Passes);
+        FlyWin = new FlightForm(fly, &Flights, &Tickets, &Passes);
         FlyWin->setAttribute(Qt::WA_DeleteOnClose);
 
         connect(this, &MainWindow::refreshFlyWin, this->FlyWin, &FlightForm::refreshTickets);

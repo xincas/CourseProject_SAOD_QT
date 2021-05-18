@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QTableWidgetItem>
+#include <QMessageBox>
 #include "MyStructs.h"
 #include "useraddform.h"
 #include "passform.h"

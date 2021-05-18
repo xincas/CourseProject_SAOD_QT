@@ -24,6 +24,7 @@ signals:
 private slots:
     void on_add_but_clicked();
     void on_cancel_but_clicked();
+    bool checkFills();
 
 private:
     Ui::AddFlightForm *ui;
