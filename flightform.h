@@ -16,21 +16,18 @@ public:
     explicit FlightForm(Flight curFly,
                         AVL<Flight>* flys,
                         List<Ticket>* ticks,
-                        /*Ticket* tickets, int n_t,*/
                         HashTable<std::string, Passanger>* passes,
                         QWidget *parent = nullptr);
     ~FlightForm();
 
 public slots:
-    void refreshTickets(/*Flight fly, Ticket* tickets, int n_t*/);
+    void refreshTickets();
 
 signals:
 
 
 private:
     Flight fly_;
-    /*Ticket* tickets_;
-    int n_tick;*/
     AVL<Flight>* flys;
     List<Ticket>* ticks;
     HashTable<std::string, Passanger> *passes_;

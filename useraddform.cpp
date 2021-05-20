@@ -22,10 +22,13 @@ void UserAddForm::on_add_but_clicked()
 {
     pass = Passanger(ui->line_pass_num->text().toStdString(),
                          ui->line_name->text().toStdString(),
-                         ui->line_b_date->text().toStdString(),
+                         ui->dateEdit->date().toString("dd.MM.yyyy").toStdString(),
                          ui->line_issplace->text().toStdString());
 
-    emit pressed_add();
+    if (pass.full_name.size() < 5 || pass.passport_number.size() < 11 || pass.issue_date.size() < 5)
+        QMessageBox::warning(this, "Ошибка", "Не все поля заполнены!");
+    else
+        emit pressed_add();
 }
 
 Passanger UserAddForm::get_passanger()

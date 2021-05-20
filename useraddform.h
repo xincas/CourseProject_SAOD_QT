@@ -2,6 +2,7 @@
 #define USERADDFORM_H
 
 #include <QWidget>
+#include <QMessageBox>
 #include "MyStructs.h"
 
 namespace Ui {

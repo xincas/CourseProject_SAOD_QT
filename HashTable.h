@@ -121,12 +121,12 @@ bool HashTable<K, T>::contains(K key)
 template<typename K, typename T>
 void HashTable<K, T>::add(K key, T data)
 {
-    if (contains(key))
-        return;
+    //if (contains(key))
+    //    return;
 
     int i = indexOf(key);
 
-	if (isFree(i))
+    if (isFree(i) || arr[i].key == key)
 		this->arr[i] = Pair<K, T>(key, data);
 	else
 	{
@@ -134,7 +134,7 @@ void HashTable<K, T>::add(K key, T data)
 		do 
 		{
 			i = collisionFix(i, try_n++);
-		} while (!isFree(i));
+        } while (!isFree(i)|| arr[i].key == key);
 
         this->arr[i] = Pair<K, T>(key, data);
 	}

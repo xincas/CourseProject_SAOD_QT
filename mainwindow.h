@@ -52,7 +52,7 @@ private:
     Ui::MainWindow *ui;
 
 signals:
-    void refreshFlyWin(/*Flight fly, Ticket* tickets, int n_t*/);
+    void refreshFlyWin();
     void refreshPassWin();
 
 private:

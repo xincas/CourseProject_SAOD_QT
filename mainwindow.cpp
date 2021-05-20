@@ -8,21 +8,21 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    Passes.add("3314-335370", Passanger("3314-335370", "Rakhim Zinatov", "02.03.2001","Vyatskie Polyani"));
-    Passes.add("1314-335370", Passanger("1314-335370", "Ismail Akmanov", "25.08.2001", "Naberezhnye Chelny"));
-    Passes.add("2314-335370", Passanger("2314-335370", "Mikhail Nesterenko", "22.06.2001", "Saint-Petersburg"));
-    Passes.add("4314-335370", Passanger("4314-335370", "Alexander Krutov", "15.11.2001", "Saint-Petersburg"));
+    Passes.add("3314-343839", Passanger("3314-343839", "Rakhim Zinatov", "02.03.2001","Vyatskie Polyani"));
+    Passes.add("1314-333940", Passanger("1314-333940", "Ismail Akmanov", "25.08.2001", "Naberezhnye Chelny"));
+    Passes.add("2314-333231", Passanger("2314-333231", "Mikhail Nesterenko", "22.06.2001", "Saint-Petersburg"));
+    Passes.add("4314-343536", Passanger("4314-343536", "Alexander Krutov", "15.11.2001", "Saint-Petersburg"));
 
-    Flights.add(Flight("AAA-111", "RussiaAirlines", "Moscow", "Saint-Petersburg", "30.04.2021", "12:52", 20, 10));
-    Flights.add(Flight("AAA-222", "GermanyAirlines", "Berlin", "Moscow", "30.04.2021", "07:25", 20, 5));
-    Flights.add(Flight("AAA-333", "UkraineAirlines", "Kiev", "Moscow", "30.04.2021", "00:38", 20, 1));
+    Flights.add(Flight("AAA-111", "RussiaAirlines", "Moscow", "Saint-Petersburg", "01.06.2021", "12:52", 20, 10));
+    Flights.add(Flight("AAA-222", "GermanyAirlines", "Berlin", "Moscow", "30.05.2021", "07:25", 20, 5));
+    Flights.add(Flight("AAA-333", "UkraineAirlines", "Kiev", "Moscow", "29.05.2021", "00:38", 20, 1));
 
-    Tickets.push_back(Ticket("3314-335370", "AAA-111", "125936526"));
-    Tickets.push_back(Ticket("3314-335370", "AAA-222", "125683526"));
-    Tickets.push_back(Ticket("3314-335370", "AAA-333", "525683526"));
-    Tickets.push_back(Ticket("1314-335370", "AAA-111", "122346526"));
-    Tickets.push_back(Ticket("4314-335370", "AAA-111", "235636526"));
-    Tickets.push_back(Ticket("2314-335370", "AAA-111", "121546526"));
+    Tickets.push_back(Ticket("3314-343839", "AAA-111", "125936526"));
+    Tickets.push_back(Ticket("3314-343839", "AAA-222", "125683526"));
+    Tickets.push_back(Ticket("3314-343839", "AAA-333", "525683526"));
+    Tickets.push_back(Ticket("1314-333940", "AAA-111", "122346526"));
+    Tickets.push_back(Ticket("4314-343536", "AAA-111", "235636526"));
+    Tickets.push_back(Ticket("2314-333231", "AAA-111", "121546526"));
 
     createPassengersTable();
     createFlightsTable();
@@ -256,6 +256,8 @@ void MainWindow::addPassanger()
         Passes.add(n_pass.passport_number, n_pass);
         UserAddWindow->close();
         refreshPassTable();
+        QMessageBox::information(this, "Информация", "Пассажир: " + QString(n_pass.full_name.c_str())
+                                 + "\nУспешно добавлен!");
     }
 }
 
@@ -277,6 +279,11 @@ void MainWindow::on_del_pass_but_clicked()
     delete[] ticks;
 
     refreshPassTable();
+    emit refreshFlyWin();
+    emit refreshPassWin();
+
+    QMessageBox::information(this, "Информация", "Пассажир: " + QString(curPas.full_name.c_str())
+                             + "\nУспешно удален!");
 }
 
 void MainWindow::on_del_all_pass_but_clicked()
@@ -298,6 +305,8 @@ void MainWindow::on_del_all_pass_but_clicked()
     Passes.clear();
     refreshPassTable();
     refreshTickTable();
+
+    QMessageBox::information(this, "Информация", "Все пассажиры успешно удалены!");
 }
 
 void MainWindow::on_line_pas_num_textChanged(const QString &arg1)
@@ -338,13 +347,13 @@ void MainWindow::on_tab_pass_itemDoubleClicked(QTableWidgetItem *item)
 
         Passanger curPas = Passes[pas_num];
 
-        PassWin = new PassForm(curPas, &Tickets, &Flights);
+        PassWin = new PassForm(curPas, &Tickets, &Flights, &Passes);
         PassWin->setAttribute(Qt::WA_DeleteOnClose);
 
         connect(PassWin, &PassForm::returnTicket, this, &MainWindow::returnTicket);
         connect(PassWin, &PassForm::destroyed, this, &MainWindow::destroyedPassWin);
         connect(PassWin, &PassForm::issueNewTicket, this, &MainWindow::issueNewTicket);
-        connect(this, &MainWindow::refreshPassWin, PassWin, &PassForm::refreshTickets);
+        connect(this, &MainWindow::refreshPassWin, PassWin, &PassForm::refreshTables);
 
         PassWin->show();
     }
@@ -380,9 +389,11 @@ void MainWindow::returnTicket(Ticket t)
         Tickets.remove(t);
 
         refreshTickTable();
-
         emit refreshFlyWin();
         emit refreshPassWin();
+
+        QMessageBox::information(this->PassWin, "Информация", "Билет №" + QString(to_del.ticket_number.c_str())
+                                 + "\nУспешно возвращен!");
     }
 }
 
@@ -406,6 +417,9 @@ void MainWindow::issueNewTicket(Flight f)
         refreshTickTable();
         emit refreshFlyWin();
         emit refreshPassWin();
+
+        QMessageBox::information(this->PassWin, "Информация", "Билет №" + QString(nt.ticket_number.c_str())
+                                 + "\nУспешно оформлен!");
     }
 }
 
@@ -450,6 +464,10 @@ void MainWindow::addFlight()
         Flights.add(n_fly);
         FlightAddWindow->close();
         refreshFlightTable();
+        emit refreshPassWin();
+
+        QMessageBox::information(this, "Информация", "Авиарейс №" + QString(n_fly.flight_number.c_str())
+                                 + "\nУспешно добавлен!");
     }
 }
 
@@ -478,6 +496,9 @@ void MainWindow::on_del_flight_but_clicked()
     refreshTickTable();
     emit refreshFlyWin();
     emit refreshPassWin();
+
+    QMessageBox::information(this, "Информация", "Авиарейс №" + QString(tmp.flight_number.c_str())
+                             + "\nУспешно удален!");
 }
 
 void MainWindow::on_clear_flight_but_clicked()
@@ -486,6 +507,8 @@ void MainWindow::on_clear_flight_but_clicked()
     Tickets.clear();
     refreshTickTable();
     refreshFlightTable();
+
+    QMessageBox::information(this, "Информация", "Все авиарейсы успешно удалены!");
 }
 
 //--------Finding flight----------

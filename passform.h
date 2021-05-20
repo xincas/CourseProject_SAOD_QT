@@ -15,14 +15,14 @@ class PassForm : public QWidget
 public:
     explicit PassForm(Passanger curPas,
                       List<Ticket>* ticks,
-                      /*Ticket* tickets, int n_t,*/
                       AVL<Flight>* flight,
+                      HashTable<std::string, Passanger>* passes,
                       QWidget *parent = nullptr);
     ~PassForm();
     Passanger getCurPass();
 
 public slots:
-    void refreshTickets(/*Ticket* tickets, int n_t*/);
+    void refreshTables();
 
 private slots:
     void on_issue_ticket_but_clicked();
@@ -35,9 +35,8 @@ signals:
 private:
     Passanger pas_;
     List<Ticket>* ticks;
-    /*Ticket* tickets_;
-    int n_tick;*/
     AVL<Flight> *fligths;
+    HashTable<std::string, Passanger>* passes;
 
 private:
     Ui::PassForm *ui;

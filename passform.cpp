@@ -3,17 +3,16 @@
 
 PassForm::PassForm(Passanger curPas,
                    List<Ticket>* ticks,
-                   /*Ticket* tickets, int n_t,*/
                    AVL<Flight>* flight,
+                   HashTable<std::string, Passanger>* passes,
                    QWidget *parent) :
     QWidget(parent),
     ui(new Ui::PassForm)
 {
     this->pas_ = curPas;
-    /*this->tickets_ = tickets;
-    this->n_tick = n_t;*/
     this->ticks = ticks;
     this->fligths = flight;
+    this->passes = passes;
 
     ui->setupUi(this);
 
@@ -188,13 +187,15 @@ void PassForm::on_return_ticket_but_clicked()
     emit returnTicket(Ticket(ui->tableWidget->item(row, 0)->text().toStdString()));
 }
 
-void PassForm::refreshTickets()
+void PassForm::refreshTables()
 {
-    /*delete[] tickets_;
-    this->tickets_ = tickets;
-    this->n_tick = n_t;*/
-
-    refreshTableTickets();
+    if (passes->contains(pas_.passport_number))
+    {
+        refreshTableTickets();
+        refreshTablePurchase();
+    }
+    else
+        this->close();
 }
 
 Passanger PassForm::getCurPass()

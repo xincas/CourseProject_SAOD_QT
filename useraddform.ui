@@ -68,13 +68,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="line_b_date">
-       <property name="inputMask">
-        <string>99.99.9999</string>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="0">
       <widget class="QLabel" name="label_issplace">
        <property name="text">
@@ -84,6 +77,30 @@
      </item>
      <item row="3" column="1">
       <widget class="QLineEdit" name="line_issplace"/>
+     </item>
+     <item row="2" column="1">
+      <widget class="QDateEdit" name="dateEdit">
+       <property name="maximumDateTime">
+        <datetime>
+         <hour>23</hour>
+         <minute>59</minute>
+         <second>59</second>
+         <year>2030</year>
+         <month>12</month>
+         <day>31</day>
+        </datetime>
+       </property>
+       <property name="minimumDateTime">
+        <datetime>
+         <hour>0</hour>
+         <minute>0</minute>
+         <second>0</second>
+         <year>1900</year>
+         <month>1</month>
+         <day>1</day>
+        </datetime>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>
@@ -107,6 +124,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>line_name</tabstop>
+  <tabstop>line_pass_num</tabstop>
+  <tabstop>dateEdit</tabstop>
+  <tabstop>line_issplace</tabstop>
+  <tabstop>add_but</tabstop>
+  <tabstop>cancel_but</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

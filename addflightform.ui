@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Добавление нового авиарейса</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="2">
@@ -141,13 +141,6 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QLineEdit" name="line_date">
-       <property name="inputMask">
-        <string>99.99.9999</string>
-       </property>
-      </widget>
-     </item>
      <item row="6" column="0">
       <widget class="QLabel" name="label_all_seats">
        <property name="text">
@@ -179,17 +172,31 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
-      <widget class="QLineEdit" name="line_time">
-       <property name="inputMask">
-        <string>99:99</string>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="0">
       <widget class="QLabel" name="label_time">
        <property name="text">
         <string>Время отправления: </string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QTimeEdit" name="timeEdit">
+       <property name="displayFormat">
+        <string>hh:mm</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QDateEdit" name="dateEdit">
+       <property name="maximumDateTime">
+        <datetime>
+         <hour>23</hour>
+         <minute>59</minute>
+         <second>59</second>
+         <year>2030</year>
+         <month>12</month>
+         <day>31</day>
+        </datetime>
        </property>
       </widget>
      </item>
@@ -202,8 +209,8 @@
   <tabstop>line_name</tabstop>
   <tabstop>line_from</tabstop>
   <tabstop>line_to</tabstop>
-  <tabstop>line_date</tabstop>
-  <tabstop>line_time</tabstop>
+  <tabstop>dateEdit</tabstop>
+  <tabstop>timeEdit</tabstop>
   <tabstop>line_all_seats</tabstop>
   <tabstop>line_free_seats</tabstop>
   <tabstop>add_but</tabstop>

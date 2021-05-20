@@ -2,6 +2,7 @@
 #define ADDFLIGHTFORM_H
 
 #include <QWidget>
+#include <QMessageBox>
 #include "MyStructs.h"
 
 namespace Ui {

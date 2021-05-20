@@ -4,7 +4,6 @@
 FlightForm::FlightForm(Flight curFly,
                        AVL<Flight>* flys,
                        List<Ticket>* ticks,
-                       /*Ticket* tickets, int n_t,*/
                        HashTable<std::string, Passanger>* passes,
                        QWidget *parent) :
     QWidget(parent),
@@ -13,8 +12,6 @@ FlightForm::FlightForm(Flight curFly,
     ui->setupUi(this);
 
     this->fly_ = curFly;
-    /*this->tickets_ = tickets;
-    this->n_tick = n_t;*/
     this->ticks = ticks;
     this->passes_ = passes;
     this->flys = flys;
@@ -27,7 +24,6 @@ FlightForm::FlightForm(Flight curFly,
 FlightForm::~FlightForm()
 {
     emit destroyed();
-    //delete[] tickets_;
     delete ui;
 }
 
@@ -117,11 +113,8 @@ Ticket* FlightForm::ticketsOfFlight(std::string fly_num, int* size)
     return pas_tic;
 }
 
-void FlightForm::refreshTickets(/*Flight fly, Ticket* tickets, int n_t*/)
+void FlightForm::refreshTickets()
 {
-    /*delete[] this->tickets_;
-    this->tickets_ = tickets;
-    this->n_tick = n_t;*/
 
     if (flys->contains(fly_))
     {

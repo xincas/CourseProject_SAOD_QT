@@ -6,6 +6,8 @@ AddFlightForm::AddFlightForm(QWidget *parent) :
     ui(new Ui::AddFlightForm)
 {
     ui->setupUi(this);
+
+    ui->dateEdit->setMinimumDateTime(QDateTime::currentDateTime());
 }
 
 AddFlightForm::~AddFlightForm()
@@ -19,12 +21,19 @@ void AddFlightForm::on_add_but_clicked()
                  ui->line_name->text().toStdString(),
                  ui->line_from->text().toStdString(),
                  ui->line_to->text().toStdString(),
-                 ui->line_date->text().toStdString(),
-                 ui->line_time->text().toStdString(),
+                 ui->dateEdit->date().toString("dd.MM.yyyy").toStdString(),
+                 ui->timeEdit->time().toString("hh:mm").toStdString(),
                  ui->line_all_seats->text().toUInt(),
                  ui->line_free_seats->text().toUInt());
 
-    emit pressed_add();
+    if (fly.flight_number.size() < 7 || fly.a_from.size() < 4
+            || fly.a_to.size() < 4 || fly.airline_name.size() < 4
+            || fly.all_seats == 0 || fly.free_seats == 0)
+        QMessageBox::warning(this, "Ошибка", "Не все поля заполнены!");
+    else if (fly.free_seats > fly.all_seats)
+        QMessageBox::warning(this, "Ошибка", "Свободных мест больше общего числа!");
+    else
+        emit pressed_add();
 }
 
 Flight AddFlightForm::getFly()
